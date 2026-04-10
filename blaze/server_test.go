@@ -228,7 +228,7 @@ func TestResponseDelay(t *testing.T) {
 			WillReturn(
 				blaze.Response(200).
 					WithBody("slow").
-					WithDelay(100*time.Millisecond),
+					WithDelay(100 * time.Millisecond),
 			),
 	)
 
@@ -249,7 +249,7 @@ func TestInsertionOrderMatching(t *testing.T) {
 	s := startServer(t)
 	defer s.Shutdown()
 
-	// Register two stubs for the same path — first one should win
+	// Register two stubs for the same path - first one should win
 	s.Stub(
 		blaze.Get("/api/order").WillReturn(blaze.Response(200).WithBody("first")),
 	)

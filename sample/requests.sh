@@ -4,28 +4,28 @@
 
 BASE_URL="${BLAZE_URL:-http://localhost:8080}"
 
-echo "=== GET /health ==="
+echo "--- GET /health"
 curl -s "$BASE_URL/health" | jq .
 echo
 
-echo "=== GET /api/users (static JSON file) ==="
+echo "--- GET /api/users"
 curl -s "$BASE_URL/api/users" | jq .
 echo
 
-echo "=== POST /api/payments (static inline response) ==="
+echo "--- POST /api/payments"
 curl -s -X POST "$BASE_URL/api/payments" \
   -H "Content-Type: application/json" \
   -d '{"amount": 100, "currency": "USD"}' | jq .
 echo
 
-echo "=== POST /api/orders/ord_55/confirm (Option A: Req() helper) ==="
+echo "--- POST /api/orders/ord_55/confirm"
 curl -s -X POST "$BASE_URL/api/orders/ord_55/confirm" \
   -H "Content-Type: application/json" \
   -H "X-Source: qa-suite" \
   -d '{"customer": {"name": "Alice", "email": "alice@example.com"}, "items": 3}' | jq .
 echo
 
-echo "=== POST /api/echo (Option B: Extract + Template) ==="
+echo "--- POST /api/echo"
 curl -s -D - -X POST "$BASE_URL/api/echo?format=json" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer tok_abc" \
@@ -33,9 +33,9 @@ curl -s -D - -X POST "$BASE_URL/api/echo?format=json" \
 echo
 echo
 
-echo "=== GET /api/users/usr_42 (Extract + Template with path param) ==="
+echo "--- GET /api/users/usr_42"
 curl -s "$BASE_URL/api/users/usr_42" | jq .
 echo
 
-echo "=== GET /unknown (404 diagnostic) ==="
+echo "--- GET /unknown"
 curl -s "$BASE_URL/unknown" | jq .

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Blaze Mock is a lightweight, standalone HTTP mock server for QA testing. Users write Go scripts to configure stubs imperatively — the same way Grafana k6 lets users write load tests as imperative JavaScript rather than declarative YAML/JSON.
+Blaze Mock is a lightweight, standalone HTTP mock server for QA testing. Users write Go scripts to configure stubs imperatively - the same way Grafana k6 lets users write load tests as imperative JavaScript rather than declarative YAML/JSON.
 
 ### Why not WireMock?
 

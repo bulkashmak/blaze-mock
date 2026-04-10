@@ -4,14 +4,14 @@ A working example of a Blaze Mock server demonstrating all stub types.
 
 ## Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/health` | Static inline response |
-| `GET` | `/api/users` | Response from a static JSON file (`fixtures/users.json`) |
-| `GET` | `/api/users/{id}` | Extract path param + template response |
-| `POST` | `/api/payments` | Static response with header and body matching |
-| `POST` | `/api/orders/{id}/confirm` | Dynamic response using `Req()` helper (Option A) |
-| `POST` | `/api/echo?format=...` | Declarative `Extract` + `WithBodyTemplate` (Option B) |
+| Method | Path                       | Description                                              |
+| ------ | -------------------------- | -------------------------------------------------------- |
+| `GET`  | `/health`                  | Static inline response                                   |
+| `GET`  | `/api/users`               | Response from a static JSON file (`fixtures/users.json`) |
+| `GET`  | `/api/users/{id}`          | Extract path param + template response                   |
+| `POST` | `/api/payments`            | Static response with header and body matching            |
+| `POST` | `/api/orders/{id}/confirm` | Dynamic response using `Req()` helper (Option A)         |
+| `POST` | `/api/echo?format=...`     | Declarative `Extract` + `WithBodyTemplate` (Option B)    |
 
 ## Running
 
