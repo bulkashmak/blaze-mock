@@ -34,7 +34,7 @@ server.Stub(
 
 ### Dynamic response with Req() helper (Option A)
 
-Full Go power — extract values from the request and build the response imperatively:
+Full Go power - extract values from the request and build the response imperatively:
 
 ```go
 server.Stub(
@@ -173,6 +173,7 @@ server := blaze.NewServer(
 ```
 
 What gets logged:
+
 - **Server started** — listening URL and list of registered stubs
 - **Request received** — method, path, query, headers, body
 - **Stub matched** — which stub ID was matched (or "no stub matched")
