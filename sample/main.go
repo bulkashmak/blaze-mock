@@ -66,13 +66,7 @@ func main() {
 				blaze.Response(200).
 					WithHeader("Content-Type", "application/json").
 					WithHeader("X-Auth", "{{.token}}").
-					WithBodyTemplate(
-						`{
-							"greeting": "Hello, {{.name}}",
-							"email": "{{.email}}",
-							"format": "{{.format}}"
-						}`,
-					),
+					WithBodyTemplate(`{"greeting": "Hello, {{.name}}","email": "{{.email}}","format": "{{.format}}"}`),
 			),
 	)
 

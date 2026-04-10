@@ -83,13 +83,24 @@ func (s *Server) Start() error {
 	}
 
 	stubs := s.registry.List()
-	stubIDs := make([]string, len(stubs))
+	stubAttrs := make([]slog.Attr, len(stubs))
 	for i, st := range stubs {
-		stubIDs[i] = fmt.Sprintf("%s %s %s", st.ID, st.Request.Method, st.Request.Path)
+		stubAttrs[i] = slog.String(st.ID, fmt.Sprintf("%s %s", st.Request.Method, st.Request.Path))
 	}
-	s.logger.Info("server started", "url", s.URL(), "stubs", stubIDs)
+	s.logger.Info("server started",
+		"url", s.URL(),
+		slog.Group("stubs", attrsToAny(stubAttrs)...),
+	)
 
 	return s.server.Serve(ln)
+}
+
+func attrsToAny(attrs []slog.Attr) []any {
+	out := make([]any, len(attrs))
+	for i, a := range attrs {
+		out[i] = a
+	}
+	return out
 }
 
 // Shutdown gracefully shuts down the server.

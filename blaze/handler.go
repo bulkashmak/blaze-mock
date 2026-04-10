@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -28,7 +29,7 @@ func (h *mockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"method", r.Method,
 		"path", r.URL.Path,
 		"query", r.URL.RawQuery,
-		"headers", flatHeaders(r.Header),
+		slog.Group("headers", httpHeaderAttrs(r.Header)...),
 		"body", string(body),
 	)
 
@@ -84,21 +85,25 @@ func (h *mockHandler) logResponse(stubID string, status int, headers map[string]
 	h.logger.Info("response sent",
 		"stub_id", stubID,
 		"status", status,
-		"headers", headers,
+		slog.Group("headers", mapAttrs(headers)...),
 		"body", string(body),
 	)
 }
 
-func flatHeaders(h http.Header) map[string]string {
-	flat := make(map[string]string, len(h))
+func httpHeaderAttrs(h http.Header) []any {
+	attrs := make([]any, 0, len(h))
 	for k, v := range h {
-		if len(v) == 1 {
-			flat[k] = v[0]
-		} else {
-			flat[k] = fmt.Sprintf("%v", v)
-		}
+		attrs = append(attrs, slog.String(k, strings.Join(v, ", ")))
 	}
-	return flat
+	return attrs
+}
+
+func mapAttrs(m map[string]string) []any {
+	attrs := make([]any, 0, len(m))
+	for k, v := range m {
+		attrs = append(attrs, slog.String(k, v))
+	}
+	return attrs
 }
 
 func writeResponse(w http.ResponseWriter, status int, headers map[string]string, body []byte) {
