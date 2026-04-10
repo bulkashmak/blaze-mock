@@ -4,12 +4,15 @@ package blaze
 type ServerOption func(*serverConfig)
 
 type serverConfig struct {
-	port int
+	port      int
+	logOutput LogOutput
+	logFile   string
 }
 
 func defaultConfig() serverConfig {
 	return serverConfig{
-		port: 0, // random free port
+		port:      0, // random free port
+		logOutput: LogStdout,
 	}
 }
 
@@ -17,5 +20,20 @@ func defaultConfig() serverConfig {
 func WithPort(port int) ServerOption {
 	return func(c *serverConfig) {
 		c.port = port
+	}
+}
+
+// WithLogOutput sets where logs are written. Default is LogStdout.
+// When using LogFile or LogBoth, you must also call WithLogFile.
+func WithLogOutput(output LogOutput) ServerOption {
+	return func(c *serverConfig) {
+		c.logOutput = output
+	}
+}
+
+// WithLogFile sets the file path for log output. Used with LogFile or LogBoth.
+func WithLogFile(path string) ServerOption {
+	return func(c *serverConfig) {
+		c.logFile = path
 	}
 }

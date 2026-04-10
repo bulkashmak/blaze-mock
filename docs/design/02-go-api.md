@@ -142,6 +142,38 @@ func (s *Server) ListStubs() []Stub
 
 // Server options
 func WithPort(port int) ServerOption
+func WithLogOutput(output LogOutput) ServerOption
+func WithLogFile(path string) ServerOption
+
+// LogOutput constants
+LogNone   // disable all logging (useful for load testing)
+LogStdout // write logs to stdout (default)
+LogFile   // write logs to a file (requires WithLogFile)
+LogBoth   // write logs to both stdout and a file (requires WithLogFile)
 ```
 
 `NewServer` creates the server and registers stubs. `Start` begins listening and blocks until the server is shut down.
+
+### Logging
+
+Blaze logs server lifecycle events and request/response traffic. Configure via `WithLogOutput`:
+
+```go
+// Log to both stdout and a file
+server := blaze.NewServer(
+    blaze.WithPort(8080),
+    blaze.WithLogOutput(blaze.LogBoth),
+    blaze.WithLogFile("blaze.log"),
+)
+
+// Disable logging entirely (e.g. for load testing)
+server := blaze.NewServer(
+    blaze.WithLogOutput(blaze.LogNone),
+)
+```
+
+What gets logged:
+- **Server started** — listening URL and list of registered stubs
+- **Request received** — method, path, query, headers, body
+- **Stub matched** — which stub ID was matched (or "no stub matched")
+- **Response sent** — status code, headers, body

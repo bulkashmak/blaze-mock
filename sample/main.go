@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -9,7 +8,11 @@ import (
 )
 
 func main() {
-	server := blaze.NewServer(blaze.WithPort(8080))
+	server := blaze.NewServer(
+		blaze.WithPort(8080),
+		blaze.WithLogOutput(blaze.LogBoth),
+		blaze.WithLogFile("blaze.log"),
+	)
 
 	// Static inline response
 	server.Stub(
@@ -93,16 +96,6 @@ func main() {
 					WithBody(`{"status": "ok"}`),
 			),
 	)
-
-	fmt.Println("Blaze Mock server starting on :8080")
-	fmt.Println()
-	fmt.Println("Try these endpoints:")
-	fmt.Println("  GET  /health")
-	fmt.Println("  GET  /api/users")
-	fmt.Println("  GET  /api/users/42")
-	fmt.Println("  POST /api/payments           (body with \"amount\")")
-	fmt.Println("  POST /api/orders/123/confirm (Option A: Req() helper)")
-	fmt.Println("  POST /api/echo?format=json   (Option B: Extract + Template)")
 
 	log.Fatal(server.Start())
 }

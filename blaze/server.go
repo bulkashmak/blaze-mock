@@ -2,9 +2,10 @@ package blaze
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
 	"net/http"
+	"os"
 )
 
 // Server is a Blaze mock server.
@@ -13,6 +14,8 @@ type Server struct {
 	registry *StubRegistry
 	listener net.Listener
 	server   *http.Server
+	logger   *slog.Logger
+	logFile  *os.File
 }
 
 // NewServer creates a new mock server with the given options.
@@ -21,9 +24,17 @@ func NewServer(opts ...ServerOption) *Server {
 	for _, opt := range opts {
 		opt(&cfg)
 	}
+
+	logger, logFile, err := newLogger(cfg.logOutput, cfg.logFile)
+	if err != nil {
+		panic(err)
+	}
+
 	return &Server{
 		config:   cfg,
 		registry: &StubRegistry{},
+		logger:   logger,
+		logFile:  logFile,
 	}
 }
 
@@ -62,20 +73,30 @@ func (s *Server) Start() error {
 	addr := fmt.Sprintf(":%d", s.config.port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
+		s.logger.Error("failed to start server", "addr", addr, "error", err)
 		return fmt.Errorf("blaze: failed to listen on %s: %w", addr, err)
 	}
 	s.listener = ln
 
 	s.server = &http.Server{
-		Handler: &mockHandler{registry: s.registry},
+		Handler: &mockHandler{registry: s.registry, logger: s.logger},
 	}
 
-	log.Printf("blaze: listening on %s", s.URL())
+	stubs := s.registry.List()
+	stubIDs := make([]string, len(stubs))
+	for i, st := range stubs {
+		stubIDs[i] = fmt.Sprintf("%s %s %s", st.ID, st.Request.Method, st.Request.Path)
+	}
+	s.logger.Info("server started", "url", s.URL(), "stubs", stubIDs)
+
 	return s.server.Serve(ln)
 }
 
 // Shutdown gracefully shuts down the server.
 func (s *Server) Shutdown() error {
+	if s.logFile != nil {
+		s.logFile.Close()
+	}
 	if s.server == nil {
 		return nil
 	}

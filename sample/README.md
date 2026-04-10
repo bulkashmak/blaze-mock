@@ -21,7 +21,7 @@ From the repository root:
 go run ./sample/
 ```
 
-The server starts on port 8080.
+The server starts on port 8080. Logs are written to both stdout and `blaze.log` in the working directory.
 
 ## Testing
 
