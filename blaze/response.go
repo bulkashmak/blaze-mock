@@ -14,22 +14,24 @@ type ResponseFunc func(*http.Request) *ResponseBuilder
 
 // ResponseDef holds the response configuration for a stub.
 type ResponseDef struct {
-	Status   int
-	Headers  map[string]string
-	Body     []byte
-	BodyFile string
-	BodyFunc func(*http.Request) (int, map[string]string, []byte, error)
-	Delay    time.Duration
+	Status       int
+	Headers      map[string]string
+	Body         []byte
+	BodyFile     string
+	BodyTemplate string
+	BodyFunc     func(*http.Request) (int, map[string]string, []byte, error)
+	Delay        time.Duration
 }
 
 // ResponseBuilder constructs a ResponseDef using a fluent API.
 type ResponseBuilder struct {
-	status   int
-	headers  map[string]string
-	body     []byte
-	bodyFile string
-	bodyJSON any
-	delay    time.Duration
+	status       int
+	headers      map[string]string
+	body         []byte
+	bodyFile     string
+	bodyTemplate string
+	bodyJSON     any
+	delay        time.Duration
 }
 
 // Response creates a new ResponseBuilder with the given HTTP status code.
@@ -55,6 +57,13 @@ func (rb *ResponseBuilder) WithBodyFile(path string) *ResponseBuilder {
 	return rb
 }
 
+// WithBodyTemplate sets a response body template with {{.name}} placeholders
+// that are resolved from values defined via Extract() on the stub.
+func (rb *ResponseBuilder) WithBodyTemplate(tmpl string) *ResponseBuilder {
+	rb.bodyTemplate = tmpl
+	return rb
+}
+
 func (rb *ResponseBuilder) WithBodyJSON(v any) *ResponseBuilder {
 	rb.bodyJSON = v
 	return rb
@@ -75,10 +84,11 @@ func (rb *ResponseBuilder) build() ResponseDef {
 		body = data
 	}
 	return ResponseDef{
-		Status:   rb.status,
-		Headers:  rb.headers,
-		Body:     body,
-		BodyFile: rb.bodyFile,
-		Delay:    rb.delay,
+		Status:       rb.status,
+		Headers:      rb.headers,
+		Body:         body,
+		BodyFile:     rb.bodyFile,
+		BodyTemplate: rb.bodyTemplate,
+		Delay:        rb.delay,
 	}
 }

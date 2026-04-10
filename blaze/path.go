@@ -11,6 +11,7 @@ type pathParamsKey struct{}
 
 // pathMatcher matches URL paths, supporting {param} placeholders.
 type pathMatcher struct {
+	pattern    string
 	re         *regexp.Regexp
 	paramNames []string
 }
@@ -44,6 +45,7 @@ func compilePath(pattern string) *pathMatcher {
 	regexPattern += "$"
 
 	return &pathMatcher{
+		pattern:    pattern,
 		re:         regexp.MustCompile(regexPattern),
 		paramNames: paramNames,
 	}
@@ -51,6 +53,10 @@ func compilePath(pattern string) *pathMatcher {
 
 func (m *pathMatcher) Match(value string) bool {
 	return m.re.MatchString(value)
+}
+
+func (m *pathMatcher) String() string {
+	return m.pattern
 }
 
 // extractParams returns path parameter values from the given path, or nil if no match.

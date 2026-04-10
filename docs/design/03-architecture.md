@@ -28,7 +28,14 @@ blaze-mock/
     matcher.go        # StringMatcher, BodyMatcher implementations
     registry.go       # StubRegistry (thread-safe in-memory store)
     handler.go        # Mock HTTP handler (matches requests to stubs)
+    request.go        # Req() helper for request value extraction
+    extract.go        # Extractor interface and built-in extractors
+    template.go       # {{.name}} template rendering
     options.go        # ServerOption functional options
+  sample/             # sample project
+    main.go
+    fixtures/
+    requests.sh       # curl requests for testing
   docs/
     design/           # design documents
   go.mod

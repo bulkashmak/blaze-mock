@@ -1,6 +1,7 @@
 package blaze
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,6 +28,8 @@ func (h *mockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Store buffered body in context so Req() can access it
+	r = r.WithContext(context.WithValue(r.Context(), requestBodyKey{}, body))
 	r = withPathParams(r, params)
 	resp := &stub.Response
 
@@ -82,7 +85,7 @@ func (h *mockHandler) writeNoMatch(w http.ResponseWriter, r *http.Request, body 
 		registered[i] = stubInfo{
 			ID:     s.ID,
 			Method: s.Request.Method,
-			Path:   fmt.Sprintf("%v", s.Request.Path),
+			Path:   fmt.Sprintf("%s", s.Request.Path),
 		}
 	}
 

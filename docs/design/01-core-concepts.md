@@ -64,3 +64,38 @@ type ResponseDef struct {
 The key differentiator from WireMock: `BodyFunc`. Users can write arbitrary Go to compute a response.
 
 Resolution order when multiple body sources are set: `BodyFunc` > `BodyFile` > `Body`.
+
+## Request Value Extraction
+
+Blaze provides two ways to extract values from incoming requests and use them in responses.
+
+### Option A: Req() helper
+
+`Req()` wraps `*http.Request` for ergonomic extraction inside `WillRespondWith` callbacks:
+
+```go
+type RequestValue struct { ... }
+
+func Req(r *http.Request) *RequestValue
+
+func (rv *RequestValue) Header(name string) string
+func (rv *RequestValue) QueryParam(name string) string
+func (rv *RequestValue) PathParam(name string) string
+func (rv *RequestValue) Body() string
+func (rv *RequestValue) JSONPath(path string) string    // dot-notation: "$.user.name"
+func (rv *RequestValue) JSONPathAny(path string) any
+```
+
+### Option B: Extractors
+
+`Extractor` pulls a named value from a request for use in response templates:
+
+```go
+type Extractor interface {
+    Extract(r *http.Request, body []byte) string
+}
+```
+
+Built-in extractors: `FromHeader(name)`, `FromQueryParam(name)`, `FromPathParam(name)`, `FromJSONPath(path)`, `FromBody()`.
+
+Extracted values are referenced in response templates via `{{.name}}` placeholders. Templates work in both `WithBodyTemplate()` and `WithHeader()` values.

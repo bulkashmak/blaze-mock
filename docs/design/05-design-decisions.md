@@ -11,3 +11,4 @@
 | 404 diagnostics       | Request details + registered stubs      | Critical for debugging                                            |
 | Package structure     | Single `blaze` package                  | Simple import path                                                |
 | Templating            | None -- use `BodyFunc`                  | Full Go language > templating DSL                                 |
+| Request-to-response   | Two options: Req() helper + Extract/Template | Req() for full Go power, Extract/Template for declarative cases |
