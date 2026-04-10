@@ -12,6 +12,9 @@
 # Go build cache
 *.out
 
+# Logs
+*.log
+
 # IDE
 .idea/
 .vscode/

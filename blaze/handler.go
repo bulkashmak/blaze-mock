@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -12,6 +13,7 @@ import (
 
 type mockHandler struct {
 	registry *StubRegistry
+	logger   *slog.Logger
 }
 
 func (h *mockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -22,11 +24,25 @@ func (h *mockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	h.logger.Info("request received",
+		"method", r.Method,
+		"path", r.URL.Path,
+		"query", r.URL.RawQuery,
+		"headers", flatHeaders(r.Header),
+		"body", string(body),
+	)
+
 	stub, params := h.registry.Match(r, body)
 	if stub == nil {
+		h.logger.Info("no stub matched",
+			"method", r.Method,
+			"path", r.URL.Path,
+		)
 		h.writeNoMatch(w, r, body)
 		return
 	}
+
+	h.logger.Info("stub matched", "stub_id", stub.ID)
 
 	// Store buffered body in context so Req() can access it
 	r = r.WithContext(context.WithValue(r.Context(), requestBodyKey{}, body))
@@ -44,6 +60,7 @@ func (h *mockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "dynamic response error: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		h.logResponse(stub.ID, status, headers, respBody)
 		writeResponse(w, status, headers, respBody)
 		return
 	}
@@ -54,11 +71,34 @@ func (h *mockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "failed to read body file: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		h.logResponse(stub.ID, resp.Status, resp.Headers, data)
 		writeResponse(w, resp.Status, resp.Headers, data)
 		return
 	}
 
+	h.logResponse(stub.ID, resp.Status, resp.Headers, resp.Body)
 	writeResponse(w, resp.Status, resp.Headers, resp.Body)
+}
+
+func (h *mockHandler) logResponse(stubID string, status int, headers map[string]string, body []byte) {
+	h.logger.Info("response sent",
+		"stub_id", stubID,
+		"status", status,
+		"headers", headers,
+		"body", string(body),
+	)
+}
+
+func flatHeaders(h http.Header) map[string]string {
+	flat := make(map[string]string, len(h))
+	for k, v := range h {
+		if len(v) == 1 {
+			flat[k] = v[0]
+		} else {
+			flat[k] = fmt.Sprintf("%v", v)
+		}
+	}
+	return flat
 }
 
 func writeResponse(w http.ResponseWriter, status int, headers map[string]string, body []byte) {

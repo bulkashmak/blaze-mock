@@ -32,6 +32,7 @@ blaze-mock/
     extract.go        # Extractor interface and built-in extractors
     template.go       # {{.name}} template rendering
     options.go        # ServerOption functional options
+    logger.go         # LogOutput type and logger construction
   sample/             # sample project
     main.go
     fixtures/
