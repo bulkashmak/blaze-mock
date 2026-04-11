@@ -1,10 +1,10 @@
-# Go API Design
+# API Reference
 
 The API uses a **builder pattern** because it reads naturally in Go, gives IDE autocompletion at every step, and prevents invalid combinations at compile time.
 
 ## Usage Examples
 
-### Static responses
+### Static response
 
 ```go
 server.Stub(
@@ -32,9 +32,9 @@ server.Stub(
 )
 ```
 
-### Dynamic response with Req() helper (Option A)
+### Dynamic response with Req() helper
 
-Full Go power - extract values from the request and build the response imperatively:
+Full Go power — extract values from the request and build the response imperatively:
 
 ```go
 server.Stub(
@@ -54,7 +54,7 @@ server.Stub(
 )
 ```
 
-### Extract + Template (Option B)
+### Extract + Template
 
 Declarative extraction with template-based response — no callback needed:
 
@@ -73,10 +73,10 @@ server.Stub(
 )
 ```
 
-## Builder API Surface
+## Stub Builder
 
 ```go
-// Entry points - one per HTTP method
+// Entry points — one per HTTP method
 func Get(path string) *StubBuilder
 func Post(path string) *StubBuilder
 func Put(path string) *StubBuilder
@@ -93,8 +93,11 @@ func (b *StubBuilder) WithBodyContaining(substr string) *StubBuilder
 func (b *StubBuilder) Extract(name string, extractor Extractor) *StubBuilder
 func (b *StubBuilder) WillReturn(resp *ResponseBuilder) *StubBuilder
 func (b *StubBuilder) WillRespondWith(fn ResponseFunc) *StubBuilder
+```
 
-// ResponseBuilder
+## Response Builder
+
+```go
 func Response(status int) *ResponseBuilder
 func (rb *ResponseBuilder) WithHeader(k, v string) *ResponseBuilder
 func (rb *ResponseBuilder) WithBody(body string) *ResponseBuilder
@@ -102,21 +105,34 @@ func (rb *ResponseBuilder) WithBodyFile(path string) *ResponseBuilder
 func (rb *ResponseBuilder) WithBodyTemplate(tmpl string) *ResponseBuilder
 func (rb *ResponseBuilder) WithBodyJSON(v any) *ResponseBuilder
 func (rb *ResponseBuilder) WithDelay(d time.Duration) *ResponseBuilder
+```
 
-// StringMatcher constructors
+## String Matchers
+
+```go
 func EqualTo(v string) StringMatcher
 func Prefix(v string) StringMatcher
 func Contains(v string) StringMatcher
 func MatchesRegex(pattern string) StringMatcher
+```
 
-// Extractor constructors (for use with Extract)
+## Extractors
+
+For use with `Extract()`:
+
+```go
 func FromHeader(name string) Extractor
 func FromQueryParam(name string) Extractor
 func FromPathParam(name string) Extractor
 func FromJSONPath(path string) Extractor
 func FromBody() Extractor
+```
 
-// Request value helper (for use inside WillRespondWith)
+## Request Value Helper
+
+For use inside `WillRespondWith` callbacks:
+
+```go
 func Req(r *http.Request) *RequestValue
 func (rv *RequestValue) Header(name string) string
 func (rv *RequestValue) QueryParam(name string) string
@@ -126,7 +142,7 @@ func (rv *RequestValue) JSONPath(path string) string
 func (rv *RequestValue) JSONPathAny(path string) any
 ```
 
-## Server API
+## Server
 
 ```go
 func NewServer(opts ...ServerOption) *Server
@@ -139,20 +155,17 @@ func (s *Server) Stub(b *StubBuilder) string
 func (s *Server) RemoveStub(id string) bool
 func (s *Server) ResetStubs()
 func (s *Server) ListStubs() []Stub
-
-// Server options
-func WithPort(port int) ServerOption
-func WithLogOutput(output LogOutput) ServerOption
-func WithLogFile(path string) ServerOption
-
-// LogOutput constants
-LogNone   // disable all logging (useful for load testing)
-LogStdout // write logs to stdout (default)
-LogFile   // write logs to a file (requires WithLogFile)
-LogBoth   // write logs to both stdout and a file (requires WithLogFile)
 ```
 
 `NewServer` creates the server and registers stubs. `Start` begins listening and blocks until the server is shut down.
+
+## Server Options
+
+```go
+func WithPort(port int) ServerOption
+func WithLogOutput(output LogOutput) ServerOption
+func WithLogFile(path string) ServerOption
+```
 
 ### Logging
 
@@ -172,9 +185,16 @@ server := blaze.NewServer(
 )
 ```
 
+`LogOutput` constants: `LogNone`, `LogStdout` (default), `LogFile`, `LogBoth`.
+
 What gets logged:
 
 - **Server started** — listening URL and list of registered stubs
 - **Request received** — method, path, query, headers, body
 - **Stub matched** — which stub ID was matched (or "no stub matched")
 - **Response sent** — status code, headers, body
+
+## Dependencies
+
+- **Standard library only** for the core `blaze` package (`net/http`, `sync`, `regexp`, `encoding/json`)
+- **`github.com/google/uuid`** for stub ID generation

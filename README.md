@@ -96,4 +96,4 @@ Then test with the provided curl scripts:
 
 ## Documentation
 
-See [docs/design/](docs/design/README.md) for the full design document.
+See [docs/](docs/README.md) for the full documentation.

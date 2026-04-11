@@ -14,7 +14,7 @@ type Stub struct {
 
 ## RequestMatcher
 
-Describes which incoming HTTP requests this stub should handle.
+Describes which incoming HTTP requests a stub should handle.
 
 ```go
 type RequestMatcher struct {
@@ -36,7 +36,7 @@ type StringMatcher interface {
 }
 ```
 
-Concrete implementations: `EqualTo(v)`, `Prefix(v)`, `Suffix(v)`, `Contains(v)`, `MatchesRegex(v)`.
+Implementations: `EqualTo(v)`, `Prefix(v)`, `Suffix(v)`, `Contains(v)`, `MatchesRegex(v)`.
 
 ## BodyMatcher
 
@@ -46,7 +46,7 @@ type BodyMatcher interface {
 }
 ```
 
-Implementations for v1: `EqualToBody([]byte)`, `ContainsString(string)`, `MatchesJSONPath(expr, expected)`.
+Implementations: `EqualToBody([]byte)`, `ContainsString(string)`, `MatchesJSONPath(expr, expected)`.
 
 ## ResponseDef
 
@@ -69,13 +69,11 @@ Resolution order when multiple body sources are set: `BodyFunc` > `BodyFile` > `
 
 Blaze provides two ways to extract values from incoming requests and use them in responses.
 
-### Option A: Req() helper
+### Req() Helper
 
 `Req()` wraps `*http.Request` for ergonomic extraction inside `WillRespondWith` callbacks:
 
 ```go
-type RequestValue struct { ... }
-
 func Req(r *http.Request) *RequestValue
 
 func (rv *RequestValue) Header(name string) string
@@ -86,7 +84,7 @@ func (rv *RequestValue) JSONPath(path string) string    // dot-notation: "$.user
 func (rv *RequestValue) JSONPathAny(path string) any
 ```
 
-### Option B: Extractors
+### Extractors
 
 `Extractor` pulls a named value from a request for use in response templates:
 
