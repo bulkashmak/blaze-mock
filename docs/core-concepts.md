@@ -46,7 +46,13 @@ type BodyMatcher interface {
 }
 ```
 
-Implementations: `EqualToBody([]byte)`, `ContainsString(string)`, `MatchesJSONPath(expr, expected)`.
+Implementations:
+
+- `EqualToBody([]byte)` — exact byte-level match
+- `ContainsString(string)` — substring match
+- `EqualToJSON(string)` — structural JSON equality (ignores key order). Chain `.IgnoreExtraFields()` to allow the actual body to contain additional fields
+- `MatchesJSONPath(path, matcher)` — extract a value at a JSONPath and check it against a `StringMatcher`
+- `AllOf(matchers...)` — compose multiple `BodyMatcher`s; passes only when all pass
 
 ## ResponseDef
 

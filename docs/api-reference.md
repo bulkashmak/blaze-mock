@@ -54,6 +54,43 @@ server.Stub(
 )
 ```
 
+### JSON body matching
+
+Match on specific JSON fields regardless of key order or extra fields:
+
+```go
+// Structural equality (ignores key order)
+server.Stub(
+    blaze.Post("/api/payments").
+        WithBody(blaze.EqualToJSON(`{"amount": 100, "currency": "USD"}`)).
+        WillReturn(blaze.Response(201)),
+)
+
+// Allow extra fields in the body
+server.Stub(
+    blaze.Post("/api/payments").
+        WithBody(blaze.EqualToJSON(`{"amount": 100}`).IgnoreExtraFields()).
+        WillReturn(blaze.Response(201)),
+)
+
+// Match a specific JSON field by path
+server.Stub(
+    blaze.Post("/api/orders").
+        WithBody(blaze.MatchesJSONPath("$.customer.name", blaze.EqualTo("alice"))).
+        WillReturn(blaze.Response(201)),
+)
+
+// Combine multiple body matchers with AllOf
+server.Stub(
+    blaze.Post("/api/orders").
+        WithBody(blaze.AllOf(
+            blaze.MatchesJSONPath("$.status", blaze.EqualTo("active")),
+            blaze.MatchesJSONPath("$.customer.name", blaze.Contains("alice")),
+        )).
+        WillReturn(blaze.Response(201)),
+)
+```
+
 ### Extract + Template
 
 Declarative extraction with template-based response — no callback needed:
@@ -114,6 +151,16 @@ func EqualTo(v string) StringMatcher
 func Prefix(v string) StringMatcher
 func Contains(v string) StringMatcher
 func MatchesRegex(pattern string) StringMatcher
+```
+
+## Body Matchers
+
+```go
+func EqualToBody(expected []byte) BodyMatcher
+func ContainsString(substr string) BodyMatcher
+func EqualToJSON(jsonStr string) *equalToJSONMatcher    // chain .IgnoreExtraFields() to allow extra fields
+func MatchesJSONPath(path string, matcher StringMatcher) BodyMatcher
+func AllOf(matchers ...BodyMatcher) BodyMatcher
 ```
 
 ## Extractors
