@@ -47,6 +47,24 @@ func main() {
             ),
     )
 
+    // JSON body matching — structural equality (ignores key order)
+    server.Stub(
+        blaze.Post("/api/invoices").
+            WithBody(blaze.EqualToJSON(`{"amount": 500, "currency": "EUR"}`)).
+            WillReturn(
+                blaze.Response(201).
+                    WithHeader("Content-Type", "application/json").
+                    WithBody(`{"id": "inv_001", "status": "created"}`),
+            ),
+    )
+
+    // JSON body matching — match a specific field by JSONPath
+    server.Stub(
+        blaze.Post("/api/refunds").
+            WithBody(blaze.MatchesJSONPath("$.reason", blaze.Contains("defective"))).
+            WillReturn(blaze.Response(202)),
+    )
+
     // Dynamic response with Req() helper (Option A)
     server.Stub(
         blaze.Post("/api/orders/{id}/confirm").

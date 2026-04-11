@@ -36,6 +36,31 @@ func main() {
 			),
 	)
 
+	// JSON body matching — structural equality (ignores key order)
+	server.Stub(
+		blaze.Post("/api/invoices").
+			WithBody(blaze.EqualToJSON(`{"amount": 500, "currency": "EUR"}`)).
+			WillReturn(
+				blaze.Response(201).
+					WithHeader("Content-Type", "application/json").
+					WithBody(`{"id": "inv_001", "status": "created"}`),
+			),
+	)
+
+	// JSON body matching — combine multiple field matchers with AllOf
+	server.Stub(
+		blaze.Post("/api/refunds").
+			WithBody(blaze.AllOf(
+				blaze.MatchesJSONPath("$.reason", blaze.Contains("defective")),
+				blaze.MatchesJSONPath("$.order_id", blaze.Prefix("ord_")),
+			)).
+			WillReturn(
+				blaze.Response(202).
+					WithHeader("Content-Type", "application/json").
+					WithBody(`{"status": "refund_pending"}`),
+			),
+	)
+
 	// --- Option A: Req() helper inside WillRespondWith ---
 	// Full Go power for request-to-response mapping
 	server.Stub(

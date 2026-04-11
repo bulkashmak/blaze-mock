@@ -18,6 +18,18 @@ curl -s -X POST "$BASE_URL/api/payments" \
   -d '{"amount": 100, "currency": "USD"}' | jq .
 echo
 
+echo "--- POST /api/invoices (EqualToJSON)"
+curl -s -X POST "$BASE_URL/api/invoices" \
+  -H "Content-Type: application/json" \
+  -d '{"currency": "EUR", "amount": 500}' | jq .
+echo
+
+echo "--- POST /api/refunds (MatchesJSONPath)"
+curl -s -X POST "$BASE_URL/api/refunds" \
+  -H "Content-Type: application/json" \
+  -d '{"order_id": "ord_99", "reason": "item defective on arrival"}' | jq .
+echo
+
 echo "--- POST /api/orders/ord_55/confirm"
 curl -s -X POST "$BASE_URL/api/orders/ord_55/confirm" \
   -H "Content-Type: application/json" \
