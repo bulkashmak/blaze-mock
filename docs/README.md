@@ -13,3 +13,4 @@ Blaze Mock is a lightweight, standalone HTTP mock server for QA testing. Users w
 1. [Core Concepts](core-concepts.md) — Stub, matchers, response definitions, request value extraction
 2. [API Reference](api-reference.md) — Builder pattern, server API, matchers, extractors
 3. [Architecture](architecture.md) — Component diagram, package layout, request matching
+4. [Admin API](admin-api.md) - HTTP Admin API documentation
