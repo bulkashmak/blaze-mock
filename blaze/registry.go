@@ -19,6 +19,19 @@ func (r *StubRegistry) Add(s Stub) string {
 	return s.ID
 }
 
+func (r *StubRegistry) Update(id string, s Stub) string {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for i := range r.stubs {
+		if r.stubs[i].ID == id {
+			s.ID = id
+			r.stubs[i] = s
+			return id
+		}
+	}
+	return ""
+}
+
 func (r *StubRegistry) Remove(id string) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -35,6 +48,17 @@ func (r *StubRegistry) Reset() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.stubs = nil
+}
+
+func (r *StubRegistry) Get(id string) *Stub {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	for i := range r.stubs {
+		if r.stubs[i].ID == id {
+			return &r.stubs[i]
+		}
+	}
+	return nil
 }
 
 func (r *StubRegistry) List() []Stub {
