@@ -4,9 +4,11 @@ package blaze
 type ServerOption func(*serverConfig)
 
 type serverConfig struct {
-	port      int
-	logOutput LogOutput
-	logFile   string
+	port         int
+	adminPort    int
+	adminEnabled bool
+	logOutput    LogOutput
+	logFile      string
 }
 
 func defaultConfig() serverConfig {
@@ -35,5 +37,14 @@ func WithLogOutput(output LogOutput) ServerOption {
 func WithLogFile(path string) ServerOption {
 	return func(c *serverConfig) {
 		c.logFile = path
+	}
+}
+
+// WithAdminPort enables the admin REST API on the given port.
+// If not set, no admin listener starts.
+func WithAdminPort(port int) ServerOption {
+	return func(c *serverConfig) {
+		c.adminPort = port
+		c.adminEnabled = true
 	}
 }

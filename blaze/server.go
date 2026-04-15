@@ -10,12 +10,14 @@ import (
 
 // Server is a Blaze mock server.
 type Server struct {
-	config   serverConfig
-	registry *StubRegistry
-	listener net.Listener
-	server   *http.Server
-	logger   *slog.Logger
-	logFile  *os.File
+	config        serverConfig
+	registry      *StubRegistry
+	listener      net.Listener
+	server        *http.Server
+	adminListener net.Listener
+	adminServer   *http.Server
+	logger        *slog.Logger
+	logFile       *os.File
 }
 
 // NewServer creates a new mock server with the given options.
@@ -68,6 +70,15 @@ func (s *Server) URL() string {
 	return "http://" + s.listener.Addr().String()
 }
 
+// AdminURL returns the base URL of the admin API server.
+// Only valid after Start has been called and WithAdminPort was configured.
+func (s *Server) AdminURL() string {
+	if s.adminListener == nil {
+		return ""
+	}
+	return "http://" + s.adminListener.Addr().String()
+}
+
 // Start begins listening and serving HTTP requests. It blocks until the server is shut down.
 func (s *Server) Start() error {
 	addr := fmt.Sprintf(":%d", s.config.port)
@@ -80,6 +91,21 @@ func (s *Server) Start() error {
 
 	s.server = &http.Server{
 		Handler: &mockHandler{registry: s.registry, logger: s.logger},
+	}
+
+	if s.config.adminEnabled {
+		adminAddr := fmt.Sprintf(":%d", s.config.adminPort)
+		adminLn, err := net.Listen("tcp", adminAddr)
+		if err != nil {
+			s.logger.Error("failed to start admin server", "addr", adminAddr, "error", err)
+			return fmt.Errorf("blaze: failed to listen on %s: %w", adminAddr, err)
+		}
+		s.adminListener = adminLn
+		s.adminServer = &http.Server{
+			Handler: newAdminMux(s.registry, s.logger),
+		}
+		go s.adminServer.Serve(adminLn)
+		s.logger.Info("admin API started", "url", s.AdminURL())
 	}
 
 	stubs := s.registry.List()
@@ -107,6 +133,9 @@ func attrsToAny(attrs []slog.Attr) []any {
 func (s *Server) Shutdown() error {
 	if s.logFile != nil {
 		s.logFile.Close()
+	}
+	if s.adminServer != nil {
+		s.adminServer.Close()
 	}
 	if s.server == nil {
 		return nil
