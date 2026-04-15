@@ -20,7 +20,7 @@ A working example of a Blaze Mock server demonstrating all stub types.
 From the repository root:
 
 ```bash
-go run ./sample/
+go run ./samples/basic/
 ```
 
 The server starts on port 8080. Logs are written to both stdout and `blaze.log` in the working directory.
@@ -30,7 +30,7 @@ The server starts on port 8080. Logs are written to both stdout and `blaze.log` 
 Run the provided curl scripts against the running server:
 
 ```bash
-./sample/requests.sh
+./samples/basic/requests.sh
 ```
 
 Or try individual requests:

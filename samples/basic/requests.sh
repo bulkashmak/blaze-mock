@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sample curl requests for the Blaze Mock sample server.
-# Start the server first: go run ./sample/
+# Start the server first: go run ./samples/basic/
 
 BASE_URL="${BLAZE_URL:-http://localhost:8080}"
 
