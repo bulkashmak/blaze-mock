@@ -98,18 +98,18 @@ func main() {
 }
 ```
 
-## Sample
+## Samples
 
-See [`sample/`](sample/) for a complete working example. Run it with:
+| Sample | Description |
+|--------|-------------|
+| [`samples/basic/`](samples/basic/) | All stub types: static, file, JSON matching, dynamic, templates |
+| [`samples/admin-api/`](samples/admin-api/) | HTTP admin API for runtime stub CRUD |
+
+Run any sample from the repository root:
 
 ```bash
-go run ./sample/
-```
-
-Then test with the provided curl scripts:
-
-```bash
-./sample/requests.sh
+go run ./samples/basic/
+go run ./samples/admin-api/
 ```
 
 ## Documentation

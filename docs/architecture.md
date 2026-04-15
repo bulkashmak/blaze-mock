@@ -33,7 +33,7 @@ blaze-mock/
     template.go       # {{.name}} template rendering
     options.go        # ServerOption functional options
     logger.go         # LogOutput type and logger construction
-  sample/             # sample project
+  samples/            # sample projects (basic, admin-api, ...)
   docs/               # documentation
   go.mod
   README.md
